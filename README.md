@@ -11,8 +11,8 @@ Paste several LinkedIn profile snippets and turn them into spreadsheet rows with
 Jan 5, 2026
 ```
 
-Open `index.html` in a browser, paste your snippets, and click **Extract contacts**. Click **Copy for sheet**, then paste into cell A1 of Google Sheets or Excel. You can also download a CSV.
+Open `index.html` in a browser, paste your snippets, and click **Extract contacts**. Edit any result cell, add or remove rows, then click **Copy for sheet** and paste into cell A1 of Google Sheets or Excel. **Download CSV** uses the edited values. Your draft auto-saves in this browser so you can return later on the same browser and site.
 
 Company names are included when explicitly stated in the snippet or in a clear “at Company” headline. Missing companies remain blank. A LinkedIn profile URL can supply a fallback name when no name is written. Repeated contacts are removed.
 
-Everything runs in your browser. There is no server, account, upload, or tracking.
+Everything runs in your browser. Nothing is uploaded to a server. The pasted text and edited rows are stored in this browser’s local storage until you use **Clear all** (or clear the site’s browser data).

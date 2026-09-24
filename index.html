@@ -9,7 +9,7 @@
     :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#f5f4ef; color:#15251f; }
     * { box-sizing: border-box; }
     body { margin:0; min-height:100vh; }
-    button, textarea { font:inherit; }
+    button, textarea, input { font:inherit; }
     button { cursor:pointer; }
     .shell { max-width:1050px; padding:48px 24px 80px; margin:auto; }
     header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:64px; }
@@ -40,13 +40,20 @@
     .stats { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
     .stat { font-size:12px; color:#50705d; background:#eaf2e8; border-radius:99px; padding:5px 9px; font-weight:700; }
     .table-wrap { width:100%; overflow-x:auto; border:1px solid #e4e9e1; border-radius:12px; }
-    table { border-collapse:collapse; width:100%; min-width:760px; table-layout:fixed; }
+    table { border-collapse:collapse; width:100%; min-width:900px; table-layout:fixed; }
     th { text-align:left; color:#718478; background:#f7f9f5; font-size:11px; text-transform:uppercase; letter-spacing:.09em; padding:13px 15px; }
-    td { padding:14px 15px; border-top:1px solid #edf0eb; font-size:13px; color:#1d3829; overflow-wrap:anywhere; vertical-align:top; }
+    td { padding:8px; border-top:1px solid #edf0eb; font-size:13px; color:#1d3829; vertical-align:middle; }
     td:first-child, th:first-child { width:45px; color:#91a096; }
     td:nth-child(2), th:nth-child(2) { width:18%; }
     td:nth-child(3), th:nth-child(3) { width:18%; }
     td:nth-child(4), th:nth-child(4) { width:25%; }
+    td:last-child, th:last-child { width:80px; }
+    .cell-input { width:100%; min-height:36px; padding:7px 8px; border:1px solid transparent; border-radius:7px; background:transparent; color:#1d3829; font-size:13px; }
+    .cell-input:hover { border-color:#dce4da; background:#fbfcfa; }
+    .cell-input:focus { outline:none; border-color:#4c9a72; box-shadow:0 0 0 2px #d8f1df; background:#fff; }
+    .cell-input::placeholder { color:#adb9af; }
+    .row-delete { border:0; border-radius:7px; background:transparent; color:#8c655f; padding:8px; font-size:12px; font-weight:700; }
+    .row-delete:hover { background:#faece8; color:#9d4539; }
     a { color:#176645; text-decoration:none; }
     a:hover { text-decoration:underline; }
     .empty { padding:30px; color:#819087; text-align:center; font-size:13px; }
@@ -58,21 +65,21 @@
 </head>
 <body>
   <main class="shell">
-    <header><div class="brand"><span class="mark" aria-hidden="true">↗</span> Contact Extractor</div><span class="badge">PRIVATE · RUNS IN YOUR BROWSER</span></header>
+    <header><div class="brand"><span class="mark" aria-hidden="true">↗</span> Contact Extractor</div><span class="badge">PRIVATE · SAVED IN THIS BROWSER</span></header>
     <section aria-labelledby="title">
       <p class="eyebrow">Text in. Contacts out.</p>
       <h1 id="title">Turn profile snippets into clean spreadsheet rows.</h1>
       <p class="lead">Paste multiple LinkedIn profile snippets. Get one row per person with their name, company, email, and LinkedIn URL, ready for Google Sheets or Excel.</p>
     </section>
     <section class="panel" aria-label="Extract contacts">
-      <div class="input-head"><label for="source">Paste your text</label><span class="hint">Nothing is uploaded or stored</span></div>
+      <div class="input-head"><label for="source">Paste your text</label><span class="hint">Nothing is uploaded</span></div>
       <textarea id="source" spellcheck="false" placeholder="Example: **Xinwei’s profile**&#10;[linkedin.com/in/xinwei-he-586512134](https://www.linkedin.com/in/xinwei-he-586512134/)&#10;**Email**&#10;**xinwei.he.swe\@gmail.com**&#10;**Connected since**&#10;Jan 5, 2026"></textarea>
-      <div class="toolbar"><span class="muted">Tip: paste each profile as its own block. Missing companies stay blank.</span><div class="actions"><button class="btn" id="clear" type="button">Clear</button><button class="btn primary" id="extract" type="button">Extract contacts →</button></div></div>
+      <div class="toolbar"><span class="muted">Tip: paste each profile as its own block. Missing companies stay blank.</span><div class="actions"><button class="btn" id="clear" type="button">Clear all</button><button class="btn primary" id="extract" type="button">Extract contacts →</button></div></div>
     </section>
     <section class="panel results" aria-labelledby="result-title">
-      <div class="results-head"><div><h2 id="result-title">Extracted contacts</h2><div class="stats" id="stats"><span class="stat">0 rows</span></div></div><div class="actions"><button class="btn" id="copy" type="button" disabled>Copy for sheet</button><button class="btn" id="download" type="button" disabled>Download CSV</button></div></div>
-      <div class="table-wrap"><table id="table" hidden><thead><tr><th>#</th><th>Name</th><th>Company</th><th>Email</th><th>LinkedIn URL</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">Your extracted contacts will appear here.</div></div>
-      <p class="footnote">Copy for sheet includes column headers. Paste into cell A1 of Google Sheets or Excel.</p>
+      <div class="results-head"><div><h2 id="result-title">Your editable sheet</h2><div class="stats" id="stats"><span class="stat">0 rows</span></div></div><div class="actions"><button class="btn" id="add-row" type="button">+ Add row</button><button class="btn" id="copy" type="button" disabled>Copy for sheet</button><button class="btn" id="download" type="button" disabled>Download CSV</button></div></div>
+      <div class="table-wrap"><table id="table" hidden><thead><tr><th>#</th><th>Name</th><th>Company</th><th>Email</th><th>LinkedIn URL</th><th></th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">Your extracted contacts will appear here.</div></div>
+      <p class="footnote">Click any cell to edit. Changes auto-save in this browser. Copy for sheet includes headers and uses your edits. <span id="draft-status" role="status"></span></p>
     </section>
   </main>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -85,9 +92,37 @@
     const stats = document.getElementById('stats');
     const copyButton = document.getElementById('copy');
     const downloadButton = document.getElementById('download');
+    const draftStatus = document.getElementById('draft-status');
     const toast = document.getElementById('toast');
+    const draftKey = 'contact-extractor-draft-v1';
     let rows = [];
     let toastTimer;
+
+    function saveDraft() {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify({source: source.value, rows}));
+        draftStatus.textContent = 'Saved on this device.';
+      } catch {
+        draftStatus.textContent = 'Auto-save unavailable; download CSV to keep your edits.';
+      }
+    }
+
+    function loadDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem(draftKey) || 'null');
+        if (!draft) return;
+        if (typeof draft.source === 'string') source.value = draft.source;
+        if (Array.isArray(draft.rows)) {
+          rows = draft.rows.filter(row => row && typeof row === 'object').map(row => ({
+            name: String(row.name || ''), company: String(row.company || ''),
+            email: String(row.email || ''), linkedin: String(row.linkedin || '')
+          }));
+        }
+        draftStatus.textContent = 'Draft restored from this browser.';
+      } catch {
+        draftStatus.textContent = 'Auto-save unavailable; download CSV to keep your edits.';
+      }
+    }
 
     function showToast(message) {
       toast.textContent = message;
@@ -96,27 +131,7 @@
       toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
     }
 
-    function render() {
-      rowsBody.replaceChildren();
-      rows.forEach((row, index) => {
-        const tr = document.createElement('tr');
-        const number = document.createElement('td'); number.textContent = String(index + 1);
-        const name = document.createElement('td'); name.textContent = row.name || '—';
-        const company = document.createElement('td'); company.textContent = row.company || '—';
-        const email = document.createElement('td'); email.textContent = row.email || '—';
-        const linkedin = document.createElement('td');
-        if (row.linkedin) {
-          const anchor = document.createElement('a');
-          anchor.href = row.linkedin; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer';
-          anchor.textContent = row.linkedin;
-          linkedin.append(anchor);
-        } else linkedin.textContent = '—';
-        tr.append(number, name, company, email, linkedin);
-        rowsBody.append(tr);
-      });
-      table.hidden = rows.length === 0;
-      empty.hidden = rows.length > 0;
-      empty.textContent = source.value.trim() ? 'No profile contacts found.' : 'Your extracted contacts will appear here.';
+    function renderStats() {
       const companyCount = rows.filter(row => row.company).length;
       const emailCount = rows.filter(row => row.email).length;
       const linkCount = rows.filter(row => row.linkedin).length;
@@ -127,14 +142,88 @@
       copyButton.disabled = downloadButton.disabled = rows.length === 0;
     }
 
-    function toTsv() { return ['Name\tCompany\tEmail\tLinkedIn URL', ...rows.map(row => `${row.name}\t${row.company}\t${row.email}\t${row.linkedin}`)].join('\n'); }
+    function render() {
+      rowsBody.replaceChildren();
+      rows.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        const number = document.createElement('td'); number.textContent = String(index + 1);
+        tr.append(number);
+        for (const [field, label] of [['name', 'Name'], ['company', 'Company'], ['email', 'Email'], ['linkedin', 'LinkedIn URL']]) {
+          const cell = document.createElement('td');
+          const input = document.createElement('input');
+          input.className = 'cell-input';
+          input.type = 'text';
+          input.value = row[field];
+          input.placeholder = label;
+          input.setAttribute('aria-label', `${label}, row ${index + 1}`);
+          input.dataset.row = String(index);
+          input.dataset.field = field;
+          input.autocomplete = 'off';
+          input.spellcheck = false;
+          if (field === 'email') input.inputMode = 'email';
+          if (field === 'linkedin') input.inputMode = 'url';
+          cell.append(input);
+          tr.append(cell);
+        }
+        const action = document.createElement('td');
+        const remove = document.createElement('button');
+        remove.type = 'button'; remove.className = 'row-delete'; remove.textContent = 'Remove';
+        remove.setAttribute('aria-label', `Remove row ${index + 1}`);
+        remove.dataset.removeRow = String(index);
+        action.append(remove);
+        tr.append(action);
+        rowsBody.append(tr);
+      });
+      table.hidden = rows.length === 0;
+      empty.hidden = rows.length > 0;
+      empty.textContent = source.value.trim() ? 'No profile contacts found. You can add a row manually.' : 'Your extracted contacts will appear here, or add a row manually.';
+      renderStats();
+    }
+
+    function toTsv() {
+      const clean = value => value.replace(/[\t\r\n]+/g, ' ');
+      return ['Name\tCompany\tEmail\tLinkedIn URL', ...rows.map(row => [row.name, row.company, row.email, row.linkedin].map(clean).join('\t'))].join('\n');
+    }
     function toCsv() {
       const quote = value => '"' + value.replace(/"/g, '""') + '"';
       return '\uFEFF' + ['Name,Company,Email,LinkedIn URL', ...rows.map(row => [row.name, row.company, row.email, row.linkedin].map(quote).join(','))].join('\r\n');
     }
 
-    document.getElementById('extract').addEventListener('click', () => { rows = extractContacts(source.value); render(); if (rows.length) showToast(`${rows.length} contact row${rows.length === 1 ? '' : 's'} extracted`); });
-    document.getElementById('clear').addEventListener('click', () => { source.value = ''; rows = []; render(); source.focus(); });
+    source.addEventListener('input', saveDraft);
+    rowsBody.addEventListener('input', event => {
+      const input = event.target;
+      const index = Number(input.dataset.row);
+      const field = input.dataset.field;
+      if (!Number.isInteger(index) || !rows[index] || !['name', 'company', 'email', 'linkedin'].includes(field)) return;
+      rows[index][field] = input.value;
+      renderStats();
+      saveDraft();
+    });
+    rowsBody.addEventListener('click', event => {
+      const button = event.target.closest('[data-remove-row]');
+      if (!button) return;
+      rows.splice(Number(button.dataset.removeRow), 1);
+      render();
+      saveDraft();
+    });
+    document.getElementById('add-row').addEventListener('click', () => {
+      rows.push({name: '', company: '', email: '', linkedin: ''});
+      render();
+      saveDraft();
+      rowsBody.lastElementChild.querySelector('input').focus();
+    });
+    document.getElementById('extract').addEventListener('click', () => {
+      rows = extractContacts(source.value);
+      render();
+      saveDraft();
+      if (rows.length) showToast(`${rows.length} contact row${rows.length === 1 ? '' : 's'} extracted`);
+    });
+    document.getElementById('clear').addEventListener('click', () => {
+      source.value = ''; rows = []; render();
+      try { localStorage.removeItem(draftKey); draftStatus.textContent = 'Draft cleared from this browser.'; }
+      catch { draftStatus.textContent = 'Auto-save unavailable; download CSV to keep your edits.'; }
+      source.focus();
+    });
     copyButton.addEventListener('click', async () => {
       try {
         if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(toTsv());
@@ -152,6 +241,7 @@
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       showToast('CSV downloaded');
     });
+    loadDraft();
     render();
   </script>
 </body>
