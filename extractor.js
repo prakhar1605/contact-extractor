@@ -103,6 +103,29 @@ function extractContacts(text) {
   return rows;
 }
 
+function getUniqueAdditions(existingRows, incomingRows) {
+  const emailKey = value => String(value || '').trim().toLowerCase();
+  const linkKey = value => {
+    if (!value) return '';
+    try {
+      const url = new URL(/^https?:\/\//i.test(value) ? value : 'https://' + value);
+      return url.hostname.toLowerCase().replace(/^www\./, '') + url.pathname.toLowerCase().replace(/\/$/, '');
+    } catch {
+      return String(value).trim().toLowerCase().replace(/\/$/, '');
+    }
+  };
+  const emails = new Set(existingRows.map(row => emailKey(row.email)).filter(Boolean));
+  const links = new Set(existingRows.map(row => linkKey(row.linkedin)).filter(Boolean));
+  return incomingRows.filter(row => {
+    const email = emailKey(row.email);
+    const link = linkKey(row.linkedin);
+    if ((email && emails.has(email)) || (link && links.has(link))) return false;
+    if (email) emails.add(email);
+    if (link) links.add(link);
+    return true;
+  });
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {extractContacts, cleanLinkedInUrl};
+  module.exports = {extractContacts, cleanLinkedInUrl, getUniqueAdditions};
 }

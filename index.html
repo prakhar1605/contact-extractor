@@ -74,7 +74,7 @@
     <section class="panel" aria-label="Extract contacts">
       <div class="input-head"><label for="source">Paste your text</label><span class="hint">Nothing is uploaded</span></div>
       <textarea id="source" spellcheck="false" placeholder="Example: **Xinwei’s profile**&#10;[linkedin.com/in/xinwei-he-586512134](https://www.linkedin.com/in/xinwei-he-586512134/)&#10;**Email**&#10;**xinwei.he.swe\@gmail.com**&#10;**Connected since**&#10;Jan 5, 2026"></textarea>
-      <div class="toolbar"><span class="muted">Tip: paste each profile as its own block. Missing companies stay blank.</span><div class="actions"><button class="btn" id="clear" type="button">Clear all</button><button class="btn primary" id="extract" type="button">Extract contacts →</button></div></div>
+      <div class="toolbar"><span class="muted">Each extraction adds rows below. Paste the next profile after this one.</span><div class="actions"><button class="btn" id="clear" type="button">Clear all</button><button class="btn primary" id="extract" type="button">Add contacts →</button></div></div>
     </section>
     <section class="panel results" aria-labelledby="result-title">
       <div class="results-head"><div><h2 id="result-title">Your editable sheet</h2><div class="stats" id="stats"><span class="stat">0 rows</span></div></div><div class="actions"><button class="btn" id="add-row" type="button">+ Add row</button><button class="btn" id="copy" type="button" disabled>Copy for sheet</button><button class="btn" id="download" type="button" disabled>Download CSV</button></div></div>
@@ -213,10 +213,18 @@
       rowsBody.lastElementChild.querySelector('input').focus();
     });
     document.getElementById('extract').addEventListener('click', () => {
-      rows = extractContacts(source.value);
+      const extracted = extractContacts(source.value);
+      if (!extracted.length) {
+        showToast('No contacts found. Check the pasted text.');
+        return;
+      }
+      const additions = getUniqueAdditions(rows, extracted);
+      rows.push(...additions);
+      source.value = '';
       render();
       saveDraft();
-      if (rows.length) showToast(`${rows.length} contact row${rows.length === 1 ? '' : 's'} extracted`);
+      showToast(additions.length ? `${additions.length} new row${additions.length === 1 ? '' : 's'} added` : 'These contacts are already in your sheet.');
+      source.focus();
     });
     document.getElementById('clear').addEventListener('click', () => {
       source.value = ''; rows = []; render();
