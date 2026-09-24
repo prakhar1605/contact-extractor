@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ef">
+  <title>Contact Extractor — Email & LinkedIn</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#f5f4ef; color:#15251f; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; }
+    button, textarea { font:inherit; }
+    button { cursor:pointer; }
+    .shell { max-width:1050px; padding:48px 24px 80px; margin:auto; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:64px; }
+    .brand { display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:-.04em; font-size:20px; }
+    .mark { width:37px; height:37px; display:grid; place-items:center; border-radius:12px; background:#163e32; color:#d9f36a; font-size:21px; }
+    .badge { background:#e7ede3; border:1px solid #d5ded3; border-radius:99px; padding:7px 12px; color:#466457; font-size:12px; font-weight:700; white-space:nowrap; }
+    .eyebrow { color:#557563; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.14em; margin:0 0 13px; }
+    h1 { font-size:clamp(36px, 6vw, 62px); letter-spacing:-.07em; line-height:1.04; margin:0; max-width:750px; }
+    .lead { color:#617168; font-size:17px; line-height:1.55; max-width:650px; margin:20px 0 30px; }
+    .panel { background:#fff; border:1px solid #e1e7dc; border-radius:20px; box-shadow:0 20px 55px rgba(24,54,36,.06); padding:25px; }
+    .input-head, .results-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    label, h2 { font-size:17px; font-weight:750; letter-spacing:-.035em; }
+    .hint { color:#8a968c; font-size:12px; }
+    textarea { width:100%; min-height:214px; margin-top:16px; resize:vertical; padding:17px; border:1px solid #dce4da; border-radius:12px; color:#17291f; background:#fbfcfa; line-height:1.6; outline:none; }
+    textarea:focus { border-color:#4c9a72; box-shadow:0 0 0 3px #d8f1df; }
+    textarea::placeholder { color:#a1aaa1; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:15px; flex-wrap:wrap; }
+    .actions { display:flex; flex-wrap:wrap; gap:9px; }
+    .btn { border:1px solid #d9e2d7; background:#fff; color:#214230; padding:11px 16px; border-radius:10px; font-size:13px; font-weight:750; min-height:42px; }
+    .btn:hover { background:#f4f8f2; }
+    .btn:focus-visible { outline:3px solid #addbb3; outline-offset:2px; }
+    .primary { background:#173f32; border-color:#173f32; color:#fff; box-shadow:0 5px 11px rgba(19,63,48,.16); }
+    .primary:hover { background:#265b43; }
+    .muted { color:#89978d; font-size:12px; }
+    .results { margin-top:21px; }
+    .results-head { margin-bottom:17px; }
+    h2 { margin:0; font-size:19px; }
+    .stats { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .stat { font-size:12px; color:#50705d; background:#eaf2e8; border-radius:99px; padding:5px 9px; font-weight:700; }
+    .table-wrap { width:100%; overflow-x:auto; border:1px solid #e4e9e1; border-radius:12px; }
+    table { border-collapse:collapse; width:100%; min-width:570px; table-layout:fixed; }
+    th { text-align:left; color:#718478; background:#f7f9f5; font-size:11px; text-transform:uppercase; letter-spacing:.09em; padding:13px 15px; }
+    td { padding:14px 15px; border-top:1px solid #edf0eb; font-size:13px; color:#1d3829; overflow-wrap:anywhere; vertical-align:top; }
+    td:first-child, th:first-child { width:45px; color:#91a096; }
+    td:nth-child(2), th:nth-child(2) { width:39%; }
+    a { color:#176645; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .empty { padding:30px; color:#819087; text-align:center; font-size:13px; }
+    .footnote { color:#849187; font-size:12px; margin:17px 2px 0; }
+    .toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:#173f32; color:white; padding:11px 17px; border-radius:10px; font-size:13px; box-shadow:0 8px 20px #173f3244; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .toast.show { opacity:1; }
+    @media(max-width:600px) { .shell { padding:25px 16px 50px; } header { margin-bottom:45px; } .panel { padding:18px; } .badge { display:none; } .toolbar { align-items:flex-start; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header><div class="brand"><span class="mark" aria-hidden="true">↗</span> Contact Extractor</div><span class="badge">PRIVATE · RUNS IN YOUR BROWSER</span></header>
+    <section aria-labelledby="title">
+      <p class="eyebrow">Text in. Contacts out.</p>
+      <h1 id="title">Turn messy text into clean contact rows.</h1>
+      <p class="lead">Paste a paragraph, list, or message. Extract email addresses and LinkedIn links, then copy the rows straight into Google Sheets or Excel.</p>
+    </section>
+    <section class="panel" aria-label="Extract contacts">
+      <div class="input-head"><label for="source">Paste your text</label><span class="hint">Nothing is uploaded or stored</span></div>
+      <textarea id="source" spellcheck="false" placeholder="Example: Reach Priya at priya@example.com — https://www.linkedin.com/in/priya-sharma/&#10;Arjun: arjun@company.com | linkedin.com/in/arjun-kumar"></textarea>
+      <div class="toolbar"><span class="muted">Tip: put each person on a new line for accurate pairing.</span><div class="actions"><button class="btn" id="clear" type="button">Clear</button><button class="btn primary" id="extract" type="button">Extract contacts →</button></div></div>
+    </section>
+    <section class="panel results" aria-labelledby="result-title">
+      <div class="results-head"><div><h2 id="result-title">Extracted contacts</h2><div class="stats" id="stats"><span class="stat">0 rows</span></div></div><div class="actions"><button class="btn" id="copy" type="button" disabled>Copy for sheet</button><button class="btn" id="download" type="button" disabled>Download CSV</button></div></div>
+      <div class="table-wrap"><table id="table" hidden><thead><tr><th>#</th><th>Email</th><th>LinkedIn URL</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">Your extracted contacts will appear here.</div></div>
+      <p class="footnote">Copy for sheet includes column headers. Paste into cell A1 of Google Sheets or Excel.</p>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    const source = document.getElementById('source');
+    const rowsBody = document.getElementById('rows');
+    const table = document.getElementById('table');
+    const empty = document.getElementById('empty');
+    const stats = document.getElementById('stats');
+    const copyButton = document.getElementById('copy');
+    const downloadButton = document.getElementById('download');
+    const toast = document.getElementById('toast');
+    let rows = [];
+    let toastTimer;
+
+    function cleanUrl(value) {
+      let url = value.replace(/[.,;:!?]+$/g, '');
+      while (/[)\]}]$/.test(url)) url = url.slice(0, -1);
+      try {
+        const parsed = new URL(/^https?:\/\//i.test(url) ? url : 'https://' + url);
+        if (!/(^|\.)linkedin\.com$/i.test(parsed.hostname)) return null;
+        return parsed.href;
+      } catch { return null; }
+    }
+
+    function extractContacts(text) {
+      const emailPattern = /(?<![\w.+-])[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}(?![\w.-])/gi;
+      const linkedInPattern = /(?<![\w@.-])(?:https?:\/\/)?(?:[\w-]+\.)?linkedin\.com(?:\/[^\s<>"'`]+)?/gi;
+      const seenEmails = new Set();
+      const seenLinks = new Set();
+      const output = [];
+      const blocks = text.split(/\n+/).filter(Boolean);
+      for (const block of blocks) {
+        const emails = [...block.matchAll(emailPattern)].map(match => match[0]).filter(email => {
+          const key = email.toLowerCase();
+          if (seenEmails.has(key)) return false;
+          seenEmails.add(key);
+          return true;
+        });
+        const links = [...block.matchAll(linkedInPattern)].map(match => cleanUrl(match[0])).filter(link => {
+          if (!link) return false;
+          const key = link.toLowerCase().replace(/\/$/, '');
+          if (seenLinks.has(key)) return false;
+          seenLinks.add(key);
+          return true;
+        });
+        for (let i = 0; i < Math.max(emails.length, links.length); i++) output.push({email: emails[i] || '', linkedin: links[i] || ''});
+      }
+      return output;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    function render() {
+      rowsBody.replaceChildren();
+      rows.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        const number = document.createElement('td'); number.textContent = String(index + 1);
+        const email = document.createElement('td'); email.textContent = row.email || '—';
+        const linkedin = document.createElement('td');
+        if (row.linkedin) {
+          const anchor = document.createElement('a');
+          anchor.href = row.linkedin; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer';
+          anchor.textContent = row.linkedin;
+          linkedin.append(anchor);
+        } else linkedin.textContent = '—';
+        tr.append(number, email, linkedin);
+        rowsBody.append(tr);
+      });
+      table.hidden = rows.length === 0;
+      empty.hidden = rows.length > 0;
+      empty.textContent = source.value.trim() ? 'No email addresses or LinkedIn URLs found.' : 'Your extracted contacts will appear here.';
+      const emailCount = rows.filter(row => row.email).length;
+      const linkCount = rows.filter(row => row.linkedin).length;
+      stats.replaceChildren();
+      for (const label of [`${rows.length} row${rows.length === 1 ? '' : 's'}`, `${emailCount} email${emailCount === 1 ? '' : 's'}`, `${linkCount} LinkedIn URL${linkCount === 1 ? '' : 's'}`]) {
+        const span = document.createElement('span'); span.className = 'stat'; span.textContent = label; stats.append(span);
+      }
+      copyButton.disabled = downloadButton.disabled = rows.length === 0;
+    }
+
+    function toTsv() { return ['Email\tLinkedIn URL', ...rows.map(row => `${row.email}\t${row.linkedin}`)].join('\n'); }
+    function toCsv() {
+      const quote = value => '"' + value.replace(/"/g, '""') + '"';
+      return '\uFEFF' + ['Email,LinkedIn URL', ...rows.map(row => `${quote(row.email)},${quote(row.linkedin)}`)].join('\r\n');
+    }
+
+    document.getElementById('extract').addEventListener('click', () => { rows = extractContacts(source.value); render(); if (rows.length) showToast(`${rows.length} contact row${rows.length === 1 ? '' : 's'} extracted`); });
+    document.getElementById('clear').addEventListener('click', () => { source.value = ''; rows = []; render(); source.focus(); });
+    copyButton.addEventListener('click', async () => {
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(toTsv());
+        else {
+          const helper = document.createElement('textarea'); helper.value = toTsv(); document.body.append(helper); helper.select();
+          if (!document.execCommand('copy')) throw new Error('Copy failed');
+          helper.remove();
+        }
+        showToast('Copied! Paste into cell A1 of your sheet.');
+      } catch { showToast('Copy failed. Use Download CSV instead.'); }
+    });
+    downloadButton.addEventListener('click', () => {
+      const url = URL.createObjectURL(new Blob([toCsv()], {type:'text/csv;charset=utf-8'}));
+      const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'contacts.csv'; anchor.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('CSV downloaded');
+    });
+    render();
+  </script>
+</body>
+</html>
